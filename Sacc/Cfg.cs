@@ -34,15 +34,23 @@ namespace Sacc
         private readonly Dictionary<Symbol, HashSet<ProductionRule>> mProductions;
         private readonly Dictionary<Symbol, HashSet<Symbol>> mFirstSymbols;
         private readonly HashSet<Symbol> mTerminals;
+
+        private readonly HashSet<Symbol> mAllSymbols;
         private readonly Symbol mStartSymbol;
 
-        public Cfg(
-            Dictionary<Symbol, HashSet<ProductionRule>> productions,
+        /// <summary>
+        /// All the symbols in this CFG, excluding the extended starting symbol
+        /// </summary>
+        public IReadOnlyCollection<Symbol> AllSymbols => mAllSymbols;
+        
+        public Cfg(Dictionary<Symbol, HashSet<ProductionRule>> productions,
+            HashSet<Symbol> allSymbols,
             Dictionary<Symbol, HashSet<Symbol>> firstSymbols,
             HashSet<Symbol> terminals,
             Symbol startSymbol)
         {
             mProductions = productions;
+            mAllSymbols = allSymbols;
             mFirstSymbols = firstSymbols;
             mTerminals = terminals;
             mStartSymbol = startSymbol;

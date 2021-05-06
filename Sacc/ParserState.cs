@@ -31,14 +31,7 @@ namespace Sacc
                 var transition = new Transition(action, item, target);
                 transitions.Add(transition);
             }
-
-            // Cannot find any parser state to go to, so reject
-            if (transitions.Count == 0)
-            {
-                targetState = null;
-                return ParseAction.MakeReject();
-            }
-
+            
             if (transitions.Count == 1)
             {
                 var onlyTransition = transitions.First();
@@ -62,6 +55,15 @@ namespace Sacc
                 return onlyTransition.Action;
             }
 
+            transitions.RemoveWhere(t => t.Action.Type == ParseActionType.Reduce);
+            
+            // Cannot find any parser state to go to, so reject
+            if (transitions.Count == 0)
+            {
+                targetState = null;
+                return ParseAction.MakeReject();
+            }
+                
             if (transitions.All(t => t.Action.Type == ParseActionType.Shift))
             {
                 targetState = new ParserState(
@@ -71,8 +73,8 @@ namespace Sacc
                         .ToHashSet());
                 return ParseAction.MakeShift();
             }
-
-            throw new Exception("There is a shift-reduce conflict.");
+            
+            throw new Exception("There is a reduce-reduce conflict.");
         }
 
         private HashSet<Item> Expand()
@@ -100,6 +102,19 @@ namespace Sacc
         public override int GetHashCode()
         {
             return mHashCode;
+        }
+
+        private bool Equals(ParserState other)
+        {
+            return mHashCode == other.mHashCode && mKernel.SetEquals(other.mKernel);
+        }
+
+        public override bool Equals(object? obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((ParserState) obj);
         }
 
         public IEnumerable<Item> Kernel => mKernel;

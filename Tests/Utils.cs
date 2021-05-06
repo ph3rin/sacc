@@ -39,5 +39,20 @@ namespace Tests
         {
             Assert.IsTrue(expected.SetEquals(items.Select(i => i.ToString())));
         }
+
+        public static void AssertNoConflicts(this HashSet<ParserState> states)
+        {
+            foreach (var state in states)
+            {
+                foreach (var other in states)
+                {
+                    if (ReferenceEquals(state, other)) continue;
+                    if (state.AllItems.ToHashSet().SetEquals(other.AllItems))
+                    {
+                        Assert.Fail("Hashset contains conflict");
+                    }
+                }
+            }
+        }
     }
 }

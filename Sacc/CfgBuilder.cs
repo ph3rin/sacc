@@ -13,10 +13,16 @@ namespace Sacc
 
         public Cfg Build(Symbol? overrideStartSymbol = null)
         {
+            // Do this before adding the extended start symbol
+            // so that it does not appear in the "AllSymbols"
+            // property of a cfg.
+            var allSymbols = ListAllSymbols();
+            
             var startSymbol = AddProductionForExtendedStartSymbol(overrideStartSymbol);
 
             return new Cfg(
                 mProductions,
+                allSymbols,
                 FindFirsts(),
                 FindAllTerminals(),
                 startSymbol);
@@ -78,6 +84,16 @@ namespace Sacc
                 .Select(p => p.Ingredients)
                 .SelectMany(_ => _)
                 .Where(symbol => !mProductions.ContainsKey(symbol))
+                .ToHashSet();
+        }
+
+        private HashSet<Symbol> ListAllSymbols()
+        {
+            return mProductions
+                .Values
+                .SelectMany(_ => _)
+                .Select(p => p.Ingredients)
+                .SelectMany(_ => _)
                 .ToHashSet();
         }
 
