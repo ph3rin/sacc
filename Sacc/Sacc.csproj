@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net472</TargetFramework>
+        <LangVersion>9</LangVersion>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Reference Include="JetBrains.Annotations, Version=2020.1.0.0, Culture=neutral, PublicKeyToken=1010a0d8d6380325">
+        <HintPath>C:\Users\rin\AppData\Local\JetBrains\Toolbox\apps\Rider\ch-0\211.7142.19\lib\ReSharperHost\TestRunner\net461\JetBrains.Annotations.dll</HintPath>
+      </Reference>
+      <Reference Include="JetBrains.Lifetimes, Version=777.0.0.0, Culture=neutral, PublicKeyToken=3c74c1a6a8683340">
+        <HintPath>C:\Users\rin\AppData\Local\JetBrains\Toolbox\apps\Rider\ch-0\211.7142.19\lib\ReSharperHost\TestRunner\net461\JetBrains.Lifetimes.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
+</Project>
