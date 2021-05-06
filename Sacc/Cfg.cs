@@ -69,8 +69,8 @@ namespace Sacc
             if (!mProductions.TryGetValue(nextSymbol, out var productionsOfNextSymbol)) yield break;
             foreach (var productionOfNextSymbol in productionsOfNextSymbol)
             {
-                IEnumerable<Symbol> followSymbols = dotPos + 1 < productionLen
-                    ? GetFirstSymbolsOf(ingredients[dotPos + 1])
+                var followSymbols = dotPos + 1 < productionLen
+                    ? GetFirstSymbolsOf(ingredients[dotPos + 1]) as IEnumerable<Symbol>
                     : new[] {item.Follow};
                 foreach (var followSymbol in followSymbols)
                 {
