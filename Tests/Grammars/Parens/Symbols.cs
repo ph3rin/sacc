@@ -109,5 +109,12 @@ namespace Tests.Grammars.Parens
             "expr :== .'a', '('",
             "expr :== .'(' expr ')', '('"
         };
+
+        public static readonly HashSet<string> Start_A_Kernel = new()
+        {
+            "expr :== 'a' . , $",
+            "expr :== 'a' . , 'a'",
+            "expr :== 'a' . , '('"
+        };
     }
 }

@@ -20,7 +20,7 @@ namespace Sacc
             mHashCode = CalculateHashCode();
         }
 
-        public ParseActionType TransitionedOn(Symbol symbol, out ParserState? targetState)
+        public ParseAction TransitionedOn(Symbol symbol, out ParserState? targetState)
         {
             var items = Expand();
             var transitions = new HashSet<Transition>();
@@ -36,7 +36,7 @@ namespace Sacc
             if (transitions.Count == 0)
             {
                 targetState = null;
-                return ParseActionType.Reject;
+                return ParseAction.MakeReject();
             }
 
             if (transitions.Count == 1)
@@ -49,16 +49,17 @@ namespace Sacc
                         {
                             onlyTransition.Dest ?? throw new NullReferenceException()
                         });
-                        return ParseActionType.Shift;
+                        break;
                     case ParseActionType.Reduce:
                         targetState = null;
-                        return ParseActionType.Shift;
+                        break;
                     case ParseActionType.Accept:
                         targetState = null;
-                        return ParseActionType.Accept;
+                        break;
                     default:
                         throw new ArgumentOutOfRangeException(nameof(onlyTransition.Action.Type));
                 }
+                return onlyTransition.Action;
             }
 
             if (transitions.All(t => t.Action.Type == ParseActionType.Shift))
@@ -68,7 +69,7 @@ namespace Sacc
                     transitions
                         .Select(t => t.Dest ?? throw new NullReferenceException())
                         .ToHashSet());
-                return ParseActionType.Shift;
+                return ParseAction.MakeShift();
             }
 
             throw new Exception("There is a shift-reduce conflict.");

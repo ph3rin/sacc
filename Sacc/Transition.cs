@@ -1,6 +1,6 @@
 ﻿namespace Sacc
 {
-    public struct Transition
+    public readonly struct Transition
     {
         public ParseAction Action { get; }
         public Item Src { get; }

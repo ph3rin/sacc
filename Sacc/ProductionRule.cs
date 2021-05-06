@@ -13,7 +13,7 @@ namespace Sacc
         private MethodInfo Method { get; }
 
         private readonly int mHashCode;
-        
+
         public ProductionRule(Symbol product, Symbol[] ingredients, MethodInfo method)
         {
             Product = product;
@@ -21,7 +21,7 @@ namespace Sacc
             Method = method;
             mHashCode = CalculateHash();
         }
-        
+
         public Node Reduce(Node[] nodes)
         {
             ValidateReduction(nodes);
@@ -49,7 +49,7 @@ namespace Sacc
                 throw new ArgumentException("Types do not match the rhs of the production rule.");
             }
         }
-        
+
         /// <summary>
         /// Derive a production rule that matches the given method
         /// </summary>
@@ -65,7 +65,7 @@ namespace Sacc
                 parameterInfos.Select(ExtractSymbolFromParameterInfo).ToArray(),
                 method);
         }
-        
+
         /// <summary>
         /// Derive production rules from all methods in the given type
         /// that has the Production attribute
@@ -83,7 +83,7 @@ namespace Sacc
         {
             return LoadAllInClass(typeof(T));
         }
-        
+
         private static Symbol ExtractSymbolFromParameterInfo(ParameterInfo parameterInfo)
         {
             return new Symbol(parameterInfo.ParameterType);
@@ -105,7 +105,7 @@ namespace Sacc
         {
             return mHashCode;
         }
-        
+
         private int CalculateHash()
         {
             unchecked
@@ -126,6 +126,13 @@ namespace Sacc
             builder.AppendFormat("{0} :== ", Product);
             builder.Append(string.Join(" ", Ingredients));
             return builder.ToString();
+        }
+
+        public bool Matches(params Symbol[] symbols)
+        {
+            return symbols.Length == Ingredients.Length + 1
+                   && symbols[0] == Product
+                   && symbols.Skip(1).SequenceEqual(Ingredients);
         }
     }
 }

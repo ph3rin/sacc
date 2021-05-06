@@ -1,10 +1,15 @@
-﻿namespace Sacc
+﻿using System;
+
+namespace Sacc
 {
     public readonly struct ParseAction
     {
-        private readonly ParseActionType mParseActionType;
         private readonly ProductionRule? mProductionUsed;
-        public ParseActionType Type => mParseActionType;
+        
+        public ParseActionType Type { get; }
+
+        public ProductionRule Production => mProductionUsed ?? throw new InvalidOperationException(
+            "The action is not reduce");
 
         public static ParseAction MakeReduce(ProductionRule productionUsed)
         {
@@ -33,13 +38,13 @@
 
         private ParseAction(ParseActionType parseActionType, ProductionRule? productionUsed = null)
         {
-            mParseActionType = parseActionType;
+            Type = parseActionType;
             mProductionUsed = productionUsed;
         }
 
         private bool Equals(ParseAction other)
         {
-            return mParseActionType == other.mParseActionType && Equals(mProductionUsed, other.mProductionUsed);
+            return Type == other.Type && Equals(mProductionUsed, other.mProductionUsed);
         }
 
         public override bool Equals(object? obj)
@@ -51,7 +56,7 @@
         {
             unchecked
             {
-                return ((int) mParseActionType * 397) ^ (mProductionUsed != null ? mProductionUsed.GetHashCode() : 0);
+                return ((int) Type * 397) ^ (mProductionUsed != null ? mProductionUsed.GetHashCode() : 0);
             }
         }
 
