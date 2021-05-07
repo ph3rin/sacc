@@ -1,11 +1,12 @@
 ﻿using ApprovalTests;
 using ApprovalTests.Reporters;
+using ApprovalTests.Reporters.TestFrameworks;
 using NUnit.Framework;
 using Sacc;
 
 namespace Tests.Grammars.Parens
 {
-    [UseReporter(typeof(DiffReporter))]
+    [UseReporter(typeof(NUnitReporter))]
     public class TableBuilderTest
     {
         private readonly Cfg mCfg = CfgBuilderGenerator.Generate().Build();
