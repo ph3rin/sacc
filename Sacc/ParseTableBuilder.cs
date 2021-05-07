@@ -90,7 +90,7 @@ namespace Sacc
                 .Select(state => state.AllItems)
                 .Select(items => 
                     string.Join("\n", 
-                        items.Select(item => item.ToString()).OrderBy(_ => _)))
+                        items.Select(item => item.ToString()).OrderBy(_ => _, StringComparer.Ordinal)))
                 .ToArray();
             
             indices.Sort((lhs, rhs) => string.Compare(id2String[lhs], id2String[rhs], StringComparison.Ordinal));
