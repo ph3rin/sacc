@@ -1,0 +1,184 @@
+0 => '(': 2 SHIFT
+0 => 'a': 8 SHIFT
+0 => expr: 1 SHIFT
+1 => $: ACCEPT
+1 => '(': 2 SHIFT
+1 => 'a': 8 SHIFT
+1 => expr: 10 SHIFT
+2 => '(': 3 SHIFT
+2 => 'a': 9 SHIFT
+2 => expr: 6 SHIFT
+3 => '(': 3 SHIFT
+3 => 'a': 9 SHIFT
+3 => expr: 7 SHIFT
+4 => $: REDUCE |> expr :== '(' expr ')'
+4 => '(': REDUCE |> expr :== '(' expr ')'
+4 => 'a': REDUCE |> expr :== '(' expr ')'
+5 => '(': REDUCE |> expr :== '(' expr ')'
+5 => ')': REDUCE |> expr :== '(' expr ')'
+5 => 'a': REDUCE |> expr :== '(' expr ')'
+6 => '(': 3 SHIFT
+6 => ')': 4 SHIFT
+6 => 'a': 9 SHIFT
+6 => expr: 11 SHIFT
+7 => '(': 3 SHIFT
+7 => ')': 5 SHIFT
+7 => 'a': 9 SHIFT
+7 => expr: 11 SHIFT
+8 => $: REDUCE |> expr :== 'a'
+8 => '(': REDUCE |> expr :== 'a'
+8 => 'a': REDUCE |> expr :== 'a'
+9 => '(': REDUCE |> expr :== 'a'
+9 => ')': REDUCE |> expr :== 'a'
+9 => 'a': REDUCE |> expr :== 'a'
+10 => $: REDUCE |> expr :== expr expr
+10 => '(': 2 SHIFT
+10 => 'a': 8 SHIFT
+10 => expr: 10 SHIFT
+11 => '(': 3 SHIFT
+11 => ')': REDUCE |> expr :== expr expr
+11 => 'a': 9 SHIFT
+11 => expr: 11 SHIFT
+
+======== State 0 =========
+__START__ :== .expr, $
+expr :== .'(' expr ')', $
+expr :== .'(' expr ')', '('
+expr :== .'(' expr ')', 'a'
+expr :== .'a', $
+expr :== .'a', '('
+expr :== .'a', 'a'
+expr :== .expr expr, $
+expr :== .expr expr, '('
+expr :== .expr expr, 'a'
+
+======== State 1 =========
+__START__ :== expr . , $
+expr :== .'(' expr ')', $
+expr :== .'(' expr ')', '('
+expr :== .'(' expr ')', 'a'
+expr :== .'a', $
+expr :== .'a', '('
+expr :== .'a', 'a'
+expr :== .expr expr, $
+expr :== .expr expr, '('
+expr :== .expr expr, 'a'
+expr :== expr .expr, $
+expr :== expr .expr, '('
+expr :== expr .expr, 'a'
+
+======== State 2 =========
+expr :== '(' .expr ')', $
+expr :== '(' .expr ')', '('
+expr :== '(' .expr ')', 'a'
+expr :== .'(' expr ')', '('
+expr :== .'(' expr ')', ')'
+expr :== .'(' expr ')', 'a'
+expr :== .'a', '('
+expr :== .'a', ')'
+expr :== .'a', 'a'
+expr :== .expr expr, '('
+expr :== .expr expr, ')'
+expr :== .expr expr, 'a'
+
+======== State 3 =========
+expr :== '(' .expr ')', '('
+expr :== '(' .expr ')', ')'
+expr :== '(' .expr ')', 'a'
+expr :== .'(' expr ')', '('
+expr :== .'(' expr ')', ')'
+expr :== .'(' expr ')', 'a'
+expr :== .'a', '('
+expr :== .'a', ')'
+expr :== .'a', 'a'
+expr :== .expr expr, '('
+expr :== .expr expr, ')'
+expr :== .expr expr, 'a'
+
+======== State 4 =========
+expr :== '(' expr ')' . , $
+expr :== '(' expr ')' . , '('
+expr :== '(' expr ')' . , 'a'
+
+======== State 5 =========
+expr :== '(' expr ')' . , '('
+expr :== '(' expr ')' . , ')'
+expr :== '(' expr ')' . , 'a'
+
+======== State 6 =========
+expr :== '(' expr .')', $
+expr :== '(' expr .')', '('
+expr :== '(' expr .')', 'a'
+expr :== .'(' expr ')', '('
+expr :== .'(' expr ')', ')'
+expr :== .'(' expr ')', 'a'
+expr :== .'a', '('
+expr :== .'a', ')'
+expr :== .'a', 'a'
+expr :== .expr expr, '('
+expr :== .expr expr, ')'
+expr :== .expr expr, 'a'
+expr :== expr .expr, '('
+expr :== expr .expr, ')'
+expr :== expr .expr, 'a'
+
+======== State 7 =========
+expr :== '(' expr .')', '('
+expr :== '(' expr .')', ')'
+expr :== '(' expr .')', 'a'
+expr :== .'(' expr ')', '('
+expr :== .'(' expr ')', ')'
+expr :== .'(' expr ')', 'a'
+expr :== .'a', '('
+expr :== .'a', ')'
+expr :== .'a', 'a'
+expr :== .expr expr, '('
+expr :== .expr expr, ')'
+expr :== .expr expr, 'a'
+expr :== expr .expr, '('
+expr :== expr .expr, ')'
+expr :== expr .expr, 'a'
+
+======== State 8 =========
+expr :== 'a' . , $
+expr :== 'a' . , '('
+expr :== 'a' . , 'a'
+
+======== State 9 =========
+expr :== 'a' . , '('
+expr :== 'a' . , ')'
+expr :== 'a' . , 'a'
+
+======== State 10 =========
+expr :== .'(' expr ')', $
+expr :== .'(' expr ')', '('
+expr :== .'(' expr ')', 'a'
+expr :== .'a', $
+expr :== .'a', '('
+expr :== .'a', 'a'
+expr :== .expr expr, $
+expr :== .expr expr, '('
+expr :== .expr expr, 'a'
+expr :== expr .expr, $
+expr :== expr .expr, '('
+expr :== expr .expr, 'a'
+expr :== expr expr . , $
+expr :== expr expr . , '('
+expr :== expr expr . , 'a'
+
+======== State 11 =========
+expr :== .'(' expr ')', '('
+expr :== .'(' expr ')', ')'
+expr :== .'(' expr ')', 'a'
+expr :== .'a', '('
+expr :== .'a', ')'
+expr :== .'a', 'a'
+expr :== .expr expr, '('
+expr :== .expr expr, ')'
+expr :== .expr expr, 'a'
+expr :== expr .expr, '('
+expr :== expr .expr, ')'
+expr :== expr .expr, 'a'
+expr :== expr expr . , '('
+expr :== expr expr . , ')'
+expr :== expr expr . , 'a'
