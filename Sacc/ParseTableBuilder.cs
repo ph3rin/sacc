@@ -127,7 +127,11 @@ namespace Sacc
                 }
             }
             
-            output.Sort();
+            output.Sort((p1, p2) =>
+            {
+                if (p1.Item1 != p2.Item1) return p1.Item1.CompareTo(p2.Item1);
+                return string.Compare(p1.Item2, p2.Item2, StringComparison.Ordinal);
+            });
             builder.AppendJoin('\n', output.Select(pair => pair.Item2));
             builder.AppendLine();
             
