@@ -28,6 +28,19 @@ namespace Sacc
         private readonly Dictionary<ParserState, int> mStates2Id = new();
         private readonly List<ParserState> mId2States = new();
         private readonly List<Rule> mRules = new();
+        private readonly bool mUseCanonicalRepresentation;
+        
+        /// <summary>
+        /// Creates a parse table builder
+        /// </summary>
+        /// <param name="useCanonicalRepresentation">Set this to true if you want
+        /// the internal IDs of parser states to be consistent with the table's
+        /// canonical string representation (that is uniform across platforms)
+        /// Useful for debug purposes, but comes with some performance overhead.</param>
+        public ParseTableBuilder(bool useCanonicalRepresentation = false)
+        {
+            mUseCanonicalRepresentation = useCanonicalRepresentation;
+        }
 
         public ParseTable BuildTableForCfg(Cfg cfg)
         {
@@ -71,10 +84,18 @@ namespace Sacc
                 }
             }
 
-            return BuildTable();
+            var rules = mRules;
+            
+            if (mUseCanonicalRepresentation)
+            {
+                var canonical = new CanonicalRepresentation(this);
+                rules = canonical.TranslateRules(mRules);
+            }
+
+            return BuildTable(rules);
         }
 
-        private ParseTable BuildTable()
+        private ParseTable BuildTable(List<Rule> rules)
         {
             var table = new Dictionary<Symbol, ParseTable.Entry>[mStates.Count];
             for (var i = 0; i < table.Length; ++i)
@@ -82,7 +103,7 @@ namespace Sacc
                 table[i] = new Dictionary<Symbol, ParseTable.Entry>();
             }
 
-            foreach (var rule in mRules)
+            foreach (var rule in rules)
             {
                 table[rule.SrcId][rule.Symbol] = new ParseTable.Entry(rule.Action, rule.DestId);
             }
@@ -98,35 +119,79 @@ namespace Sacc
             return ret;
         }
 
-        public string Dump()
+        private class CanonicalRepresentation
         {
-            var builder = new StringBuilder();
-            var output = new List<(int, string)>();
-            var indices = Enumerable.Range(0, mId2States.Count).ToList();
-            var id2String = mId2States
+            private readonly ParseTableBuilder mTableBuilder;
+            private readonly string[] mId2String;
+            private readonly int[] mPrintId2Id;
+            private readonly int[] mId2PrintId;
+
+            public CanonicalRepresentation(ParseTableBuilder builder)
+            {
+                mTableBuilder = builder;
+                mId2String = builder.GetStringRepresentationForAllStates();
+                mPrintId2Id = Enumerable.Range(0, builder.mId2States.Count).ToArray();
+                Array.Sort(mPrintId2Id, (lhs, rhs) =>
+                    string.Compare(mId2String[lhs], mId2String[rhs], StringComparison.Ordinal));
+                mId2PrintId = InverseMap(mPrintId2Id);
+            }
+
+            public List<Rule> TranslateRules(List<Rule> rules)
+            {
+                return rules.Select(
+                        rule => new Rule(rule.Action, rule.Symbol, GetPrintIdOf(rule.SrcId),
+                            rule.DestId.HasValue ? GetPrintIdOf(rule.DestId.Value) : null))
+                    .ToList();
+            }
+
+            public int GetPrintIdOf(int id)
+            {
+                return mId2PrintId[id];
+            }
+
+            public string GetStringOf(int printId)
+            {
+                return mId2String[mPrintId2Id[printId]];
+            }
+
+            private static int[] InverseMap(int[] map)
+            {
+                var result = new int[map.Length];
+                for (var i = 0; i < map.Length; ++i)
+                {
+                    result[map[i]] = i;
+                }
+
+                return result;
+            }
+        }
+
+        private string[] GetStringRepresentationForAllStates()
+        {
+            return mId2States
                 .Select(state => state.AllItems)
                 .Select(items =>
                     string.Join("\n",
                         items.Select(item => item.ToString()).OrderBy(_ => _, StringComparer.Ordinal)))
                 .ToArray();
+        }
 
-            indices.Sort((lhs, rhs) => string.Compare(id2String[lhs], id2String[rhs], StringComparison.Ordinal));
-            var id2PrintedId = new int[indices.Count];
-            for (var i = 0; i < indices.Count; ++i)
-            {
-                id2PrintedId[indices[i]] = i;
-            }
+        public string Dump()
+        {
+            var builder = new StringBuilder();
+            var canonical = new CanonicalRepresentation(this);
+            var output = new List<(int, string)>();
 
             foreach (var entry in mRules)
             {
-                var srcPrintId = id2PrintedId[entry.SrcId];
+                var srcPrintId = canonical.GetPrintIdOf(entry.SrcId);
 
                 switch (entry.Action.Type)
                 {
                     case ParseActionType.Shift:
                     {
                         output.Add((srcPrintId,
-                            $"{srcPrintId} => {entry.Symbol}: {id2PrintedId[entry.DestId ?? throw new NullReferenceException()]} SHIFT"));
+                            $"{srcPrintId} => {entry.Symbol}: {canonical.GetPrintIdOf(entry.DestId ?? throw new NullReferenceException())} SHIFT"));
                         break;
                     }
                     case ParseActionType.Reduce:
@@ -149,14 +214,14 @@ namespace Sacc
                 if (p1.Item1 != p2.Item1) return p1.Item1.CompareTo(p2.Item1);
                 return string.Compare(p1.Item2, p2.Item2, StringComparison.Ordinal);
             });
+
             builder.AppendJoin('\n', output.Select(pair => pair.Item2));
             builder.AppendLine();
 
-            for (var printId = 0; printId < indices.Count; ++printId)
+            for (var printId = 0; printId < mStates.Count; ++printId)
             {
-                var actualId = indices[printId];
                 builder.AppendLine($"\n======== State {printId} =========");
-                builder.AppendLine(id2String[actualId]);
+                builder.AppendLine(canonical.GetStringOf(printId));
             }
 
             return builder.ToString();

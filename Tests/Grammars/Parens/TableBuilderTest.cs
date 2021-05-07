@@ -14,7 +14,7 @@ namespace Tests.Grammars.Parens
         [Test]
         public void BuildTable()
         {
-            var tableBuilder = new ParseTableBuilder();
+            var tableBuilder = new ParseTableBuilder(true);
             tableBuilder.BuildTableForCfg(mCfg);
             Approvals.Verify(tableBuilder.Dump());
         }
