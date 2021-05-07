@@ -5,7 +5,7 @@ namespace Sacc
     public readonly struct ParseAction
     {
         private readonly ProductionRule? mProductionUsed;
-        
+
         public ParseActionType Type { get; }
 
         public ProductionRule Production => mProductionUsed ?? throw new InvalidOperationException(
@@ -16,25 +16,13 @@ namespace Sacc
             return new(ParseActionType.Reduce, productionUsed);
         }
 
-        public static ParseAction MakeAccept()
-        {
-            return new(ParseActionType.Accept);
-        }
+        public static ParseAction MakeAccept() => new(ParseActionType.Accept);
 
-        public static ParseAction MakeShift()
-        {
-            return new(ParseActionType.Shift);
-        }
+        public static ParseAction MakeShift() => new(ParseActionType.Shift);
 
-        public static ParseAction MakeDiscard()
-        {
-            return new(ParseActionType.Discard);
-        }
+        public static ParseAction MakeDiscard() => new(ParseActionType.Discard);
 
-        public static ParseAction MakeReject()
-        {
-            return new(ParseActionType.Reject);
-        }
+        public static ParseAction MakeReject() => new(ParseActionType.Reject);
 
         private ParseAction(ParseActionType parseActionType, ProductionRule? productionUsed = null)
         {

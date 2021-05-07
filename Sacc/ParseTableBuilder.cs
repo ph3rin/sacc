@@ -86,7 +86,7 @@ namespace Sacc
         public string Dump()
         {
             var builder = new StringBuilder();
-            var output = new List<string>();
+            var output = new List<(int, string)>();
             var indices = Enumerable.Range(0, mId2States.Count).ToList();
             var id2String = mId2States
                 .Select(state => state.AllItems)
@@ -104,24 +104,25 @@ namespace Sacc
 
             foreach (var entry in mTableEntries)
             {
+                var srcPrintId = id2PrintedId[entry.SrcId];
+                
                 switch (entry.Action.Type)
                 {
                     case ParseActionType.Shift:
                     {
-                        output.Add(
-                            $"{id2PrintedId[entry.SrcId]} --{entry.Symbol}--> {id2PrintedId[entry.DestId]} shifts {entry.Symbol}");
+                        output.Add((srcPrintId,
+                            $"{srcPrintId} => {entry.Symbol}: {id2PrintedId[entry.DestId]} SHIFT"));
                         break;
                     }
                     case ParseActionType.Reduce:
                         output.Add(
-                            $"{id2PrintedId[entry.SrcId]} --{entry.Symbol}--> reduces with {entry.Action.Production}");
+                            (srcPrintId, $"{srcPrintId} => {entry.Symbol}: REDUCE |> {entry.Action.Production}"));
                         break;
                     case ParseActionType.Accept:
-                        output.Add($"{id2PrintedId[entry.SrcId]} --{entry.Symbol}--> accepts");
+                        output.Add((srcPrintId, $"{srcPrintId} => {entry.Symbol}: ACCEPT"));
                         break;
                     case ParseActionType.Reject:
                         // Need not to print rejection
-                        // output.Add($"{id2PrintedId[entry.SrcId]} --{entry.Symbol}--> REJECTS");
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
@@ -129,18 +130,17 @@ namespace Sacc
             }
             
             output.Sort();
-            builder.AppendJoin('\n', output);
+            builder.AppendJoin('\n', output.Select(pair => pair.Item2));
             builder.AppendLine();
-            builder.AppendLine("======== STATES ========");
+            
             for (var printId = 0; printId < indices.Count; ++printId)
             {
                 var actualId = indices[printId];
-                builder.AppendLine($"\n ======== State {printId} =========:");
+                builder.AppendLine($"\n======== State {printId} =========");
                 builder.AppendLine(id2String[actualId]);
             }
 
             return builder.ToString();
-            return string.Join("\n", output);
         }
     }
 }

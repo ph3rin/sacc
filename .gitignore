@@ -2,3 +2,9 @@
 bin/
 obj/
 *.user
+
+# Ignore received txt for Approval Test
+*.received.*
+
+# Always include golden master for Approval Test
+*.approved.*
