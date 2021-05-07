@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace Sacc
@@ -34,26 +35,29 @@ namespace Sacc
         private readonly Dictionary<Symbol, HashSet<ProductionRule>> mProductions;
         private readonly Dictionary<Symbol, HashSet<Symbol>> mFirstSymbols;
         private readonly HashSet<Symbol> mTerminals;
-        
         private readonly HashSet<Symbol> mAllSymbols;
         private readonly Symbol mStartSymbol;
+        private readonly Dictionary<Symbol, int> mPrecedence;
+        private readonly Dictionary<Symbol, Associativity> mAssociativity;
 
         /// <summary>
         /// All the symbols in this CFG, excluding the extended starting symbol
         /// </summary>
         public IReadOnlyCollection<Symbol> AllSymbols => mAllSymbols;
-        
+
         public Cfg(Dictionary<Symbol, HashSet<ProductionRule>> productions,
             HashSet<Symbol> allSymbols,
             Dictionary<Symbol, HashSet<Symbol>> firstSymbols,
             HashSet<Symbol> terminals,
-            Symbol startSymbol)
+            Symbol startSymbol, Dictionary<Symbol, int> precedence, Dictionary<Symbol, Associativity> associativity)
         {
             mProductions = productions;
             mAllSymbols = allSymbols;
             mFirstSymbols = firstSymbols;
             mTerminals = terminals;
             mStartSymbol = startSymbol;
+            mPrecedence = precedence;
+            mAssociativity = associativity;
         }
 
         public bool IsTerminal(Symbol symbol)
@@ -111,6 +115,15 @@ namespace Sacc
 
         public (Item?, ParseAction) FindTransitionOfItemOn(Item item, Symbol symbol)
         {
+            var (target, action) = FindTransitionOfItemOnUnchecked(item, symbol);
+
+            return TransitionIsValidForItem(action, item, symbol)
+                ? (target, action)
+                : (null, ParseAction.MakeDiscard());
+        }
+
+        private (Item?, ParseAction) FindTransitionOfItemOnUnchecked(Item item, Symbol symbol)
+        {
             var productionLen = item.Production.Ingredients.Length;
 
             if (item.DotPos < productionLen && symbol == item.Production.Ingredients[item.DotPos])
@@ -129,6 +142,80 @@ namespace Sacc
             }
 
             return (null, ParseAction.MakeDiscard());
+        }
+
+        private bool TransitionIsValidForItem(ParseAction action, Item item, Symbol inputSymbol)
+        {
+            /*
+             * Constraints:
+             *  - If the action is to discard, then this is fine.
+             *  - If precedence(lhs) < precedence(rhs), this must be a shift
+             *  - If precedence(lhs) > precedence(rhs) and dot is at the end, this must be a reduce
+             *  - If either has undefined precedence or associativity, then this is ok
+             *  - If precedence(rhs) == precedence(lhs),
+             *      - If either are left-associative and dot is at the end, this must be a reduce
+             *      - Otherwise, this must be a shift
+             */
+
+            var lhsIdx = Array.FindLastIndex(item.Production.Ingredients, HasPrecedence);
+            Symbol? lhs = lhsIdx != -1 ? item.Production.Ingredients[lhsIdx] : null;
+            var rhs = inputSymbol;
+            var pLeft = GetPrecedence(lhs);
+            var pRight = GetPrecedence(rhs);
+            var aLeft = GetAssociativity(lhs);
+            var aRight = GetAssociativity(rhs);
+
+            if (pLeft < pRight && action.Type != ParseActionType.Shift)
+            {
+                return false;
+            }
+
+            if (pLeft > pRight && item.CanReduce && action.Type != ParseActionType.Reduce)
+            {
+                return false;
+            }
+
+            if (pLeft is null || pRight is null || aLeft == Associativity.Default || aRight == Associativity.Default)
+            {
+                return true;
+            }
+
+            if (pLeft == pRight)
+            {
+                Debug.Assert(aLeft == aRight);
+                if (aLeft == Associativity.Left || aRight == Associativity.Left)
+                {
+                    if (item.CanReduce && action.Type != ParseActionType.Reduce)
+                    {
+                        return false;
+                    }
+                }
+                else if (action.Type != ParseActionType.Shift)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private Associativity GetAssociativity(Symbol? symbol)
+        {
+            if (symbol is null) return Associativity.Default;
+            if (mAssociativity.TryGetValue(symbol.Value, out var result)) return result;
+            return Associativity.Default;
+        }
+
+        private int? GetPrecedence(Symbol? symbol)
+        {
+            if (symbol is null) return null;
+            if (mPrecedence.TryGetValue(symbol.Value, out var result)) return result;
+            return null;
+        }
+
+        private bool HasPrecedence(Symbol symbol)
+        {
+            return mPrecedence.ContainsKey(symbol);
         }
 
         public ParserState MakeInitialParserState()

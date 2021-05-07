@@ -31,6 +31,12 @@ namespace Sacc
                 var transition = new Transition(action, item, target);
                 transitions.Add(transition);
             }
+
+            if (transitions.Count == 0)
+            {
+                targetState = null;
+                return ParseAction.MakeReject();
+            }
             
             if (transitions.Count == 1)
             {
@@ -54,16 +60,7 @@ namespace Sacc
                 }
                 return onlyTransition.Action;
             }
-
-            transitions.RemoveWhere(t => t.Action.Type == ParseActionType.Reduce);
             
-            // Cannot find any parser state to go to, so reject
-            if (transitions.Count == 0)
-            {
-                targetState = null;
-                return ParseAction.MakeReject();
-            }
-                
             if (transitions.All(t => t.Action.Type == ParseActionType.Shift))
             {
                 targetState = new ParserState(
@@ -72,6 +69,21 @@ namespace Sacc
                         .Select(t => t.Dest ?? throw new NullReferenceException())
                         .ToHashSet());
                 return ParseAction.MakeShift();
+            }
+            
+            transitions.RemoveWhere(t => t.Action.Type == ParseActionType.Shift);
+            
+            // Cannot find any parser state to go to, so reject
+            if (transitions.Count == 0)
+            {
+                targetState = null;
+                return ParseAction.MakeReject();
+            }
+
+            if (transitions.Count == 1)
+            {
+                targetState = null;
+                return transitions.First().Action;
             }
             
             throw new Exception("There is a reduce-reduce conflict.");

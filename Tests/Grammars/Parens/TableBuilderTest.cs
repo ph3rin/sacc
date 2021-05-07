@@ -14,8 +14,13 @@ namespace Tests.Grammars.Parens
         [Test]
         public void BuildTable()
         {
+            var cfg = CfgBuilderGenerator
+                .Generate()
+                .DeclarePrecedence(Symbol.Of<SymA>(), Symbol.Of<Expression>())
+                .Build();
+            
             var tableBuilder = new ParseTableBuilder(true);
-            tableBuilder.BuildTableForCfg(mCfg);
+            tableBuilder.BuildTableForCfg(cfg);
             Approvals.Verify(tableBuilder.Dump());
         }
     }

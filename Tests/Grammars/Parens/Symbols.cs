@@ -13,12 +13,12 @@ namespace Tests.Grammars.Parens
     {
     }
 
-    [SymbolName("'a'")]
+    [SymbolName("'a'"), Associativity(Associativity.Left)]
     public class SymA : Expression
     {
     }
 
-    [StartSymbol, SymbolName("expr")]
+    [StartSymbol, SymbolName("expr"), Associativity(Associativity.Left)]
     public class Expression
     {
         public class ConcatenatedExpression : Expression
