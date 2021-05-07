@@ -71,8 +71,6 @@ namespace Sacc
                     }
                 }
             }
-
-            Console.WriteLine(Dump());
         }
 
         private int RegisterNewState(ParserState state)
