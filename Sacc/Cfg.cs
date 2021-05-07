@@ -34,7 +34,7 @@ namespace Sacc
         private readonly Dictionary<Symbol, HashSet<ProductionRule>> mProductions;
         private readonly Dictionary<Symbol, HashSet<Symbol>> mFirstSymbols;
         private readonly HashSet<Symbol> mTerminals;
-
+        
         private readonly HashSet<Symbol> mAllSymbols;
         private readonly Symbol mStartSymbol;
 

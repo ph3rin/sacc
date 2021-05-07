@@ -8,14 +8,14 @@ namespace Sacc
 {
     public class ParseTableBuilder
     {
-        private struct TableEntry
+        private readonly struct Rule
         {
             public ParseAction Action { get; }
             public Symbol Symbol { get; }
             public int SrcId { get; }
-            public int DestId { get; }
+            public int? DestId { get; }
 
-            public TableEntry(ParseAction action, Symbol symbol, int srcId, int destId = -1)
+            public Rule(ParseAction action, Symbol symbol, int srcId, int? destId = null)
             {
                 Action = action;
                 Symbol = symbol;
@@ -27,9 +27,9 @@ namespace Sacc
         private readonly HashSet<ParserState> mStates = new HashSet<ParserState>();
         private readonly Dictionary<ParserState, int> mStates2Id = new();
         private readonly List<ParserState> mId2States = new();
-        private readonly List<TableEntry> mTableEntries = new();
+        private readonly List<Rule> mRules = new();
 
-        public void BuildTableForCfg(Cfg cfg)
+        public ParseTable BuildTableForCfg(Cfg cfg)
         {
             var initial = cfg.MakeInitialParserState();
             mStates.Add(initial);
@@ -46,8 +46,7 @@ namespace Sacc
                     var (destState, action) = srcState.TransitionedOn(symbol);
                     if (destState is not null)
                     {
-                        // This is necessarily a shift operation
-
+                        // This is necessarily a shift operation, since there destState is not null.
                         Debug.Assert(action.Type == ParseActionType.Shift);
 
                         var destStateId = -1;
@@ -63,14 +62,32 @@ namespace Sacc
                             destStateId = RegisterNewState(destState);
                         }
 
-                        mTableEntries.Add(new TableEntry(action, symbol, srcStateId, destStateId));
+                        mRules.Add(new Rule(action, symbol, srcStateId, destStateId));
                     }
                     else
                     {
-                        mTableEntries.Add(new TableEntry(action, symbol, srcStateId));
+                        mRules.Add(new Rule(action, symbol, srcStateId));
                     }
                 }
             }
+
+            return BuildTable();
+        }
+
+        private ParseTable BuildTable()
+        {
+            var table = new Dictionary<Symbol, ParseTable.Entry>[mStates.Count];
+            for (var i = 0; i < table.Length; ++i)
+            {
+                table[i] = new Dictionary<Symbol, ParseTable.Entry>();
+            }
+
+            foreach (var rule in mRules)
+            {
+                table[rule.SrcId][rule.Symbol] = new ParseTable.Entry(rule.Action, rule.DestId);
+            }
+
+            return new ParseTable(table);
         }
 
         private int RegisterNewState(ParserState state)
@@ -88,11 +105,11 @@ namespace Sacc
             var indices = Enumerable.Range(0, mId2States.Count).ToList();
             var id2String = mId2States
                 .Select(state => state.AllItems)
-                .Select(items => 
-                    string.Join("\n", 
+                .Select(items =>
+                    string.Join("\n",
                         items.Select(item => item.ToString()).OrderBy(_ => _, StringComparer.Ordinal)))
                 .ToArray();
-            
+
             indices.Sort((lhs, rhs) => string.Compare(id2String[lhs], id2String[rhs], StringComparison.Ordinal));
             var id2PrintedId = new int[indices.Count];
             for (var i = 0; i < indices.Count; ++i)
@@ -100,16 +117,16 @@ namespace Sacc
                 id2PrintedId[indices[i]] = i;
             }
 
-            foreach (var entry in mTableEntries)
+            foreach (var entry in mRules)
             {
                 var srcPrintId = id2PrintedId[entry.SrcId];
-                
+
                 switch (entry.Action.Type)
                 {
                     case ParseActionType.Shift:
                     {
                         output.Add((srcPrintId,
-                            $"{srcPrintId} => {entry.Symbol}: {id2PrintedId[entry.DestId]} SHIFT"));
+                            $"{srcPrintId} => {entry.Symbol}: {id2PrintedId[entry.DestId ?? throw new NullReferenceException()]} SHIFT"));
                         break;
                     }
                     case ParseActionType.Reduce:
@@ -126,7 +143,7 @@ namespace Sacc
                         throw new ArgumentOutOfRangeException();
                 }
             }
-            
+
             output.Sort((p1, p2) =>
             {
                 if (p1.Item1 != p2.Item1) return p1.Item1.CompareTo(p2.Item1);
@@ -134,7 +151,7 @@ namespace Sacc
             });
             builder.AppendJoin('\n', output.Select(pair => pair.Item2));
             builder.AppendLine();
-            
+
             for (var printId = 0; printId < indices.Count; ++printId)
             {
                 var actualId = indices[printId];
