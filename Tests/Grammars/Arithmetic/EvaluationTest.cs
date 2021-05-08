@@ -75,5 +75,22 @@ namespace Tests.Grammars.Arithmetic
             var output = mTable.Parse(input);
             Assert.AreEqual(769, (output.Payload as Expr)?.Eval());
         }
+        
+        [Test]
+        public void NegationInMinus()
+        {
+            // 42 - -1 - 10
+            var input = new[]
+            {
+                Node.Make(new Numeric(42)),
+                Node.Make(new OpMinus()),
+                Node.Make(new OpMinus()),
+                Node.Make(new Numeric(1)),
+                Node.Make(new OpMinus()),
+                Node.Make(new Numeric(10))
+            };
+            var output = mTable.Parse(input);
+            Assert.AreEqual(33, (output.Payload as Expr)?.Eval());
+        }
     }
 }
