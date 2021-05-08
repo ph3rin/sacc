@@ -3,7 +3,7 @@ using Sacc;
 
 namespace Tests.Grammars.Parens
 {
-    [SymbolName("'('")]
+    [SymbolName("'('"), Associativity(Associativity.Right)]
     public class SymLParen
     {
     }
@@ -13,12 +13,12 @@ namespace Tests.Grammars.Parens
     {
     }
 
-    [SymbolName("'a'"), Associativity(Associativity.Left)]
+    [SymbolName("'a'")]
     public class SymA : Expression
     {
     }
 
-    [StartSymbol, SymbolName("expr"), Associativity(Associativity.Left)]
+    [StartSymbol, SymbolName("expr")]
     public class Expression
     {
         public class ConcatenatedExpression : Expression

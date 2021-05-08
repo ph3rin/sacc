@@ -6,7 +6,7 @@ using Sacc;
 
 namespace Tests.Grammars.Parens
 {
-    [UseReporter(typeof(NUnitReporter))]
+    [UseReporter(typeof(DiffReporter))]
     public class TableBuilderTest
     {
         private readonly Cfg mCfg = CfgBuilderGenerator.Generate().Build();
@@ -16,7 +16,8 @@ namespace Tests.Grammars.Parens
         {
             var cfg = CfgBuilderGenerator
                 .Generate()
-                .DeclarePrecedence(Symbol.Of<SymA>(), Symbol.Of<Expression>())
+                //.DeclarePrecedence()
+                .DeclarePrecedence(Symbol.Of<Expression>(), Symbol.Of<SymLParen>(), Symbol.Of<SymRParen>(), Symbol.Of<SymA>())
                 .Build();
             
             var tableBuilder = new ParseTableBuilder(true);

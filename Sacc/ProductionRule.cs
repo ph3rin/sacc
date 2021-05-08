@@ -10,15 +10,18 @@ namespace Sacc
     {
         public Symbol Product { get; }
         public Symbol[] Ingredients { get; }
+        public Symbol? OverridePrecedence { get; }
         private MethodInfo Method { get; }
 
         private readonly int mHashCode;
 
-        public ProductionRule(Symbol product, Symbol[] ingredients, MethodInfo method)
+        public ProductionRule(Symbol product, Symbol[] ingredients, MethodInfo method,
+            Symbol? overridePrecedence = null)
         {
             Product = product;
             Ingredients = ingredients;
             Method = method;
+            OverridePrecedence = overridePrecedence;
             mHashCode = CalculateHash();
         }
 
@@ -59,11 +62,23 @@ namespace Sacc
         {
             var retType = method.ReturnType;
             var parameterInfos = method.GetParameters();
-
+            var precedenceSymbol = LoadOverridePrecedence(method);
+            
             return new ProductionRule(
                 new Symbol(retType),
                 parameterInfos.Select(ExtractSymbolFromParameterInfo).ToArray(),
-                method);
+                method,
+                precedenceSymbol);
+        }
+
+        private static Symbol? LoadOverridePrecedence(MethodInfo method)
+        {
+            if (method.GetCustomAttribute<OverridePrecedenceAttribute>() is { } attribute)
+            {
+                return attribute.PrecedenceSymbol;
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -91,7 +106,8 @@ namespace Sacc
 
         private bool Equals(ProductionRule other)
         {
-            return Product.Equals(other.Product) && Ingredients.SequenceEqual(other.Ingredients);
+            return Product.Equals(other.Product) && Ingredients.SequenceEqual(other.Ingredients) &&
+                   OverridePrecedence.Equals(other.OverridePrecedence);
         }
 
         public override bool Equals(object obj)
@@ -116,6 +132,7 @@ namespace Sacc
                     hc = hc * 314159 + i.GetHashCode();
                 }
 
+                hc ^= OverridePrecedence?.GetHashCode() ?? 0;
                 return (Product.GetHashCode() * 397) ^ hc;
             }
         }

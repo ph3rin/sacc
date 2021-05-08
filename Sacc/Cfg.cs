@@ -158,12 +158,13 @@ namespace Sacc
              */
 
             var lhsIdx = Array.FindLastIndex(item.Production.Ingredients, HasPrecedence);
-            Symbol? lhs = lhsIdx != -1 ? item.Production.Ingredients[lhsIdx] : null;
+            var lhs = item.Production.OverridePrecedence ??
+                      (lhsIdx != -1 ? item.Production.Ingredients[lhsIdx] : null);
             var rhs = inputSymbol;
-            var pLeft = GetPrecedence(lhs);
-            var pRight = GetPrecedence(rhs);
-            var aLeft = GetAssociativity(lhs);
-            var aRight = GetAssociativity(rhs);
+            var pLeft = PrecedenceOf(lhs);
+            var pRight = PrecedenceOf(rhs);
+            var aLeft = AssociativityOf(lhs);
+            var aRight = AssociativityOf(rhs);
 
             if (pLeft < pRight && action.Type != ParseActionType.Shift)
             {
@@ -199,14 +200,28 @@ namespace Sacc
             return true;
         }
 
-        private Associativity GetAssociativity(Symbol? symbol)
+        public Associativity AssociativityOf(Symbol? symbol)
         {
             if (symbol is null) return Associativity.Default;
             if (mAssociativity.TryGetValue(symbol.Value, out var result)) return result;
             return Associativity.Default;
         }
 
-        private int? GetPrecedence(Symbol? symbol)
+        public Associativity AssociativityOf(ProductionRule production)
+        {
+            if (production.OverridePrecedence.HasValue) return AssociativityOf(production.OverridePrecedence);
+            for (var i = production.Ingredients.Length - 1; i >= 0; --i)
+            {
+                var assoc = AssociativityOf(production.Ingredients[i]);
+                if (assoc != Associativity.Default)
+                {
+                    return assoc;
+                }
+            }
+            return Associativity.Default;
+        }
+
+        public int? PrecedenceOf(Symbol? symbol)
         {
             if (symbol is null) return null;
             if (mPrecedence.TryGetValue(symbol.Value, out var result)) return result;
