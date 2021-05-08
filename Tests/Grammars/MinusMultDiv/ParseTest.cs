@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System;
+using NUnit.Framework;
 using Sacc;
 using static Tests.Grammars.MinusMultDiv.Symbols;
 
@@ -50,10 +51,10 @@ namespace Tests.Grammars.MinusMultDiv
                 mul,
                 Node.Make(new A(5))
             });
-            
+
             Assert.AreEqual(0, (node.Payload as Expr)?.Eval());
         }
-        
+
         [Test]
         public void MinusMultMinus()
         {
@@ -71,8 +72,35 @@ namespace Tests.Grammars.MinusMultDiv
                 minus,
                 Node.Make(new A(-1))
             });
-            
+
             Assert.AreEqual(0, (node.Payload as Expr)?.Eval());
+        }
+
+        [Test]
+        public void DanglingMinus()
+        {
+            Assert.Throws(Is.InstanceOf<Exception>(), () =>
+            {
+                mTable.Parse(new[]
+                {
+                    Node.Make(new Minus())
+                });
+            });
+        }
+
+        [Test]
+        public void DanglingMinusAfterValidExpr()
+        {
+            Assert.Throws(Is.InstanceOf<Exception>(), () =>
+            {
+                mTable.Parse(new[]
+                {
+                    Node.Make(new A(1)),
+                    Node.Make(new Mult()),
+                    Node.Make(new A(2)),
+                    Node.Make(new Minus())
+                });
+            });
         }
     }
 }

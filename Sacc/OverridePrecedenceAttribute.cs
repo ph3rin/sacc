@@ -7,9 +7,9 @@ namespace Sacc
     {
         public Symbol PrecedenceSymbol { get; }
         
-        public OverridePrecedenceAttribute(Symbol precedenceSymbol)
+        public OverridePrecedenceAttribute(Type precedenceSymbol)
         {
-            PrecedenceSymbol = precedenceSymbol;
+            PrecedenceSymbol = new Symbol(precedenceSymbol);
         }
     }
 }

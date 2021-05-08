@@ -29,7 +29,7 @@ namespace Sacc
         private readonly List<ParserState> mId2States = new();
         private readonly List<Rule> mRules = new();
         private readonly bool mUseCanonicalRepresentation;
-        
+
         /// <summary>
         /// Creates a parse table builder
         /// </summary>
@@ -85,7 +85,7 @@ namespace Sacc
             }
 
             var rules = mRules;
-            
+
             if (mUseCanonicalRepresentation)
             {
                 var canonical = new CanonicalRepresentation(this);
@@ -130,9 +130,10 @@ namespace Sacc
             {
                 mTableBuilder = builder;
                 mId2String = builder.GetStringRepresentationForAllStates();
-                mPrintId2Id = Enumerable.Range(0, builder.mId2States.Count).ToArray();
+                mPrintId2Id = Enumerable.Range(1, builder.mId2States.Count - 1).ToArray();
                 Array.Sort(mPrintId2Id, (lhs, rhs) =>
                     string.Compare(mId2String[lhs], mId2String[rhs], StringComparison.Ordinal));
+                mPrintId2Id = new[] {0}.Concat(mPrintId2Id).ToArray();
                 mId2PrintId = InverseMap(mPrintId2Id);
             }
 
@@ -140,7 +141,7 @@ namespace Sacc
             {
                 return rules.Select(
                         rule => new Rule(rule.Action, rule.Symbol, GetPrintIdOf(rule.SrcId),
-                            rule.DestId.HasValue ? GetPrintIdOf(rule.DestId.Value) : (int?)null))
+                            rule.DestId.HasValue ? GetPrintIdOf(rule.DestId.Value) : (int?) null))
                     .ToList();
             }
 
