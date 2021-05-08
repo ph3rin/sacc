@@ -42,9 +42,10 @@ namespace Sacc
                 targetState = null;
                 return ParseAction.MakeAccept();
             }
-            
-            if (transitions.Any(t => t.Action.Type == ParseActionType.Reduce &&
-                                     mCfg.AssociativityOf(t.Action.Production) == Associativity.Left))
+
+            if (transitions.Any(t => t.Action.Type == ParseActionType.Reduce && (
+                mCfg.AssociativityOf(t.Action.Production) == Associativity.Left ||
+                mCfg.PrecedenceOf(t.Action.Production) > mCfg.PrecedenceOf(symbol))))
             {
                 transitions.RemoveWhere(t => t.Action.Type != ParseActionType.Reduce);
                 if (transitions.Count > 1) throw new Exception("There is a reduce-reduce conflict.");
@@ -58,15 +59,15 @@ namespace Sacc
                 targetState = null;
                 return ParseAction.MakeReduce(transitions.First().Action.Production);
             }
-            
+
             transitions.RemoveWhere(t => t.Action.Type != ParseActionType.Shift);
-            
+
             if (transitions.Count == 0)
             {
                 targetState = null;
                 return ParseAction.MakeReject();
             }
-            
+
             targetState = new ParserState(
                 mCfg,
                 transitions

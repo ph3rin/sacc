@@ -9,7 +9,7 @@ namespace Tests.Grammars.Arithmetic
     public class EvaluationTest
     {
         private readonly ParseTable mTable =
-            new ParseTableBuilder()
+            new ParseTableBuilder(true)
                 .BuildTableForCfg(new CfgBuilder()
                     .AddAllProductionsInClass<Expr>()
                     .DeclarePrecedence(Symbol.Of<OpAdd>(), Symbol.Of<OpMinus>())
@@ -52,6 +52,28 @@ namespace Tests.Grammars.Arithmetic
             };
             var output = mTable.Parse(input);
             Assert.AreEqual(15, (output.Payload as Expr)?.Eval());
+        }
+        
+        [Test]
+        public void AddMultAndExp()
+        {
+            // 1^2 + 3 * 2^2^3
+            var input = new[]
+            {
+                Node.Make(new Numeric(1)),
+                Node.Make(new OpExp()),
+                Node.Make(new Numeric(2)),
+                Node.Make(new OpAdd()),
+                Node.Make(new Numeric(3)),
+                Node.Make(new OpMult()),
+                Node.Make(new Numeric(2)),
+                Node.Make(new OpExp()),
+                Node.Make(new Numeric(2)),
+                Node.Make(new OpExp()),
+                Node.Make(new Numeric(3))
+            };
+            var output = mTable.Parse(input);
+            Assert.AreEqual(769, (output.Payload as Expr)?.Eval());
         }
     }
 }

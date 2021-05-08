@@ -71,11 +71,11 @@
 16 => OpMinus: REDUCE |> Expr :== Expr OpDiv Expr
 16 => OpMult: REDUCE |> Expr :== Expr OpDiv Expr
 17 => $: REDUCE |> Expr :== Expr OpExp Expr
-17 => OpAdd: 1 SHIFT
-17 => OpDiv: 2 SHIFT
+17 => OpAdd: REDUCE |> Expr :== Expr OpExp Expr
+17 => OpDiv: REDUCE |> Expr :== Expr OpExp Expr
 17 => OpExp: 3 SHIFT
-17 => OpMinus: 4 SHIFT
-17 => OpMult: 5 SHIFT
+17 => OpMinus: REDUCE |> Expr :== Expr OpExp Expr
+17 => OpMult: REDUCE |> Expr :== Expr OpExp Expr
 18 => $: REDUCE |> Expr :== Expr OpMinus Expr
 18 => OpAdd: REDUCE |> Expr :== Expr OpMinus Expr
 18 => OpDiv: 2 SHIFT
@@ -89,11 +89,11 @@
 19 => OpMinus: REDUCE |> Expr :== Expr OpMult Expr
 19 => OpMult: REDUCE |> Expr :== Expr OpMult Expr
 20 => $: REDUCE |> Expr :== OpMinus Expr
-20 => OpAdd: 1 SHIFT
-20 => OpDiv: 2 SHIFT
-20 => OpExp: 3 SHIFT
-20 => OpMinus: 4 SHIFT
-20 => OpMult: 5 SHIFT
+20 => OpAdd: REDUCE |> Expr :== OpMinus Expr
+20 => OpDiv: REDUCE |> Expr :== OpMinus Expr
+20 => OpExp: REDUCE |> Expr :== OpMinus Expr
+20 => OpMinus: REDUCE |> Expr :== OpMinus Expr
+20 => OpMult: REDUCE |> Expr :== OpMinus Expr
 21 => $: ACCEPT
 21 => OpAdd: 1 SHIFT
 21 => OpDiv: 2 SHIFT
@@ -112,11 +112,11 @@
 23 => OpMinus: REDUCE |> Expr :== Expr OpDiv Expr
 23 => OpMult: REDUCE |> Expr :== Expr OpDiv Expr
 23 => RParen: REDUCE |> Expr :== Expr OpDiv Expr
-24 => OpAdd: 7 SHIFT
-24 => OpDiv: 8 SHIFT
+24 => OpAdd: REDUCE |> Expr :== Expr OpExp Expr
+24 => OpDiv: REDUCE |> Expr :== Expr OpExp Expr
 24 => OpExp: 9 SHIFT
-24 => OpMinus: 10 SHIFT
-24 => OpMult: 11 SHIFT
+24 => OpMinus: REDUCE |> Expr :== Expr OpExp Expr
+24 => OpMult: REDUCE |> Expr :== Expr OpExp Expr
 24 => RParen: REDUCE |> Expr :== Expr OpExp Expr
 25 => OpAdd: REDUCE |> Expr :== Expr OpMinus Expr
 25 => OpDiv: 8 SHIFT
@@ -142,11 +142,11 @@
 28 => OpMinus: 10 SHIFT
 28 => OpMult: 11 SHIFT
 28 => RParen: 31 SHIFT
-29 => OpAdd: 7 SHIFT
-29 => OpDiv: 8 SHIFT
-29 => OpExp: 9 SHIFT
-29 => OpMinus: 10 SHIFT
-29 => OpMult: 11 SHIFT
+29 => OpAdd: REDUCE |> Expr :== OpMinus Expr
+29 => OpDiv: REDUCE |> Expr :== OpMinus Expr
+29 => OpExp: REDUCE |> Expr :== OpMinus Expr
+29 => OpMinus: REDUCE |> Expr :== OpMinus Expr
+29 => OpMult: REDUCE |> Expr :== OpMinus Expr
 29 => RParen: REDUCE |> Expr :== OpMinus Expr
 30 => $: REDUCE |> Expr :== LParen Expr RParen
 30 => OpAdd: REDUCE |> Expr :== LParen Expr RParen

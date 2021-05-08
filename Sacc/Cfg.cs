@@ -227,6 +227,20 @@ namespace Sacc
             if (mPrecedence.TryGetValue(symbol.Value, out var result)) return result;
             return null;
         }
+        
+        public int? PrecedenceOf(ProductionRule production)
+        {
+            if (production.OverridePrecedence.HasValue) return PrecedenceOf(production.OverridePrecedence);
+            for (var i = production.Ingredients.Length - 1; i >= 0; --i)
+            {
+                var precedence = PrecedenceOf(production.Ingredients[i]);
+                if (precedence is not null)
+                {
+                    return precedence;
+                }
+            }
+            return null;
+        }
 
         private bool HasPrecedence(Symbol symbol)
         {
