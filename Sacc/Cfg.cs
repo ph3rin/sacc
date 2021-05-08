@@ -159,7 +159,7 @@ namespace Sacc
 
             var lhsIdx = Array.FindLastIndex(item.Production.Ingredients, HasPrecedence);
             var lhs = item.Production.OverridePrecedence ??
-                      (lhsIdx != -1 ? item.Production.Ingredients[lhsIdx] : null);
+                      (lhsIdx != -1 ? item.Production.Ingredients[lhsIdx] : (Symbol?)null);
             var rhs = inputSymbol;
             var pLeft = PrecedenceOf(lhs);
             var pRight = PrecedenceOf(rhs);

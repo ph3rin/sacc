@@ -74,47 +74,6 @@ namespace Sacc
                     .Select(t => t.Dest ?? throw new NullReferenceException())
                     .ToHashSet());
             return ParseAction.MakeShift();
-
-
-            // if (transitions.Count == 1)
-            // {
-            //     var onlyTransition = transitions.First();
-            //     switch (onlyTransition.Action.Type)
-            //     {
-            //         case ParseActionType.Shift:
-            //             targetState = new ParserState(mCfg, new HashSet<Item>
-            //             {
-            //                 onlyTransition.Dest ?? throw new NullReferenceException()
-            //             });
-            //             break;
-            //         case ParseActionType.Reduce:
-            //             targetState = null;
-            //             break;
-            //         case ParseActionType.Accept:
-            //             targetState = null;
-            //             break;
-            //         default:
-            //             throw new ArgumentOutOfRangeException(nameof(onlyTransition.Action.Type));
-            //     }
-            //
-            //     return onlyTransition.Action;
-            // }
-            //
-            //
-            // transitions.RemoveWhere(t => t.Action.Type == ParseActionType.Shift);
-            //
-            // // Cannot find any parser state to go to, so reject
-            // if (transitions.Count == 0)
-            // {
-            //     targetState = null;
-            //     return ParseAction.MakeReject();
-            // }
-            //
-            // if (transitions.Count == 1)
-            // {
-            //     targetState = null;
-            //     return transitions.First().Action;
-            // }
         }
 
         private HashSet<Item> Expand()
