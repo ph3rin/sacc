@@ -110,7 +110,7 @@ namespace Sacc
                    OverridePrecedence.Equals(other.OverridePrecedence);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;

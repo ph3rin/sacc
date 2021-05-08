@@ -31,7 +31,7 @@ namespace Sacc
             return StaticType == other.StaticType;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return obj is Symbol other && Equals(other);
         }

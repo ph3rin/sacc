@@ -5,9 +5,9 @@ namespace Sacc
     public struct Node
     {
         public Symbol Symbol { get; }
-        public object Payload { get; }
+        public object? Payload { get; }
 
-        public Node(Symbol symbol, object payload)
+        public Node(Symbol symbol, object? payload)
         {
             Symbol = symbol;
             Payload = payload;
@@ -23,7 +23,7 @@ namespace Sacc
             return Symbol == other.Symbol;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return obj is Node other && Equals(other);
         }

@@ -67,7 +67,7 @@ namespace Sacc
                         if (!mStates.Add(destState))
                         {
                             mStates.TryGetValue(destState, out destState);
-                            destStateId = mStates2Id[destState];
+                            destStateId = mStates2Id[destState ?? throw new NullReferenceException()];
                         }
                         else
                         {
