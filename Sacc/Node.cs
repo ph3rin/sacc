@@ -13,7 +13,7 @@ namespace Sacc
             Payload = payload;
         }
 
-        public static Node Make<T>(T payload) where T : notnull
+        public static Node Make<T>(T payload)
         {
             return new(Symbol.Of<T>(), payload);
         }

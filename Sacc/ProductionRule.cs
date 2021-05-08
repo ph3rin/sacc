@@ -42,6 +42,7 @@ namespace Sacc
             var typesMatch = Ingredients
                 .Zip(nodes, (symbol, node) =>
                 {
+                    if (node.Payload is null) return true;
                     var nodeType = node.Payload.GetType();
                     var symbolType = symbol.StaticType;
                     return nodeType == symbolType || nodeType.IsSubclassOf(symbolType);
@@ -113,8 +114,7 @@ namespace Sacc
         public override bool Equals(object? obj)
         {
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
-            return Equals((ProductionRule) obj);
+            return obj?.GetType() == this.GetType() && Equals((ProductionRule) obj);
         }
 
         public override int GetHashCode()
