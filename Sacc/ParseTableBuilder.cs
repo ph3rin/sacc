@@ -140,7 +140,7 @@ namespace Sacc
             {
                 return rules.Select(
                         rule => new Rule(rule.Action, rule.Symbol, GetPrintIdOf(rule.SrcId),
-                            rule.DestId.HasValue ? GetPrintIdOf(rule.DestId.Value) : null))
+                            rule.DestId.HasValue ? GetPrintIdOf(rule.DestId.Value) : (int?)null))
                     .ToList();
             }
 
