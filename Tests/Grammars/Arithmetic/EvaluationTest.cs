@@ -1,5 +1,4 @@
-﻿using System;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using Sacc;
 
 using static Tests.Grammars.Arithmetic.Symbols;
