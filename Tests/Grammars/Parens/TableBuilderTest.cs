@@ -13,8 +13,12 @@ namespace Tests.Grammars.Parens
         [Test]
         public void BuildTable()
         {
-            var tableBuilder = new ParseTableBuilder();
-            tableBuilder.BuildTableForCfg(mCfg);
+            var cfg = CfgBuilderGenerator
+                .Generate()
+                .Build();
+            
+            var tableBuilder = new ParseTableBuilder(true);
+            tableBuilder.BuildTableForCfg(cfg);
             Approvals.Verify(tableBuilder.Dump());
         }
     }

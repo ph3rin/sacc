@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -31,50 +30,50 @@ namespace Sacc
                 var transition = new Transition(action, item, target);
                 transitions.Add(transition);
             }
-            
-            if (transitions.Count == 1)
-            {
-                var onlyTransition = transitions.First();
-                switch (onlyTransition.Action.Type)
-                {
-                    case ParseActionType.Shift:
-                        targetState = new ParserState(mCfg, new HashSet<Item>
-                        {
-                            onlyTransition.Dest ?? throw new NullReferenceException()
-                        });
-                        break;
-                    case ParseActionType.Reduce:
-                        targetState = null;
-                        break;
-                    case ParseActionType.Accept:
-                        targetState = null;
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(onlyTransition.Action.Type));
-                }
-                return onlyTransition.Action;
-            }
 
-            transitions.RemoveWhere(t => t.Action.Type == ParseActionType.Reduce);
-            
-            // Cannot find any parser state to go to, so reject
             if (transitions.Count == 0)
             {
                 targetState = null;
                 return ParseAction.MakeReject();
             }
-                
-            if (transitions.All(t => t.Action.Type == ParseActionType.Shift))
+
+            if (transitions.Any(t => t.Action.Type == ParseActionType.Accept))
             {
-                targetState = new ParserState(
-                    mCfg,
-                    transitions
-                        .Select(t => t.Dest ?? throw new NullReferenceException())
-                        .ToHashSet());
-                return ParseAction.MakeShift();
+                targetState = null;
+                return ParseAction.MakeAccept();
             }
-            
-            throw new Exception("There is a reduce-reduce conflict.");
+
+            if (transitions.Any(t => t.Action.Type == ParseActionType.Reduce && (
+                mCfg.AssociativityOf(t.Action.Production) == Associativity.Left ||
+                mCfg.PrecedenceOf(t.Action.Production) > mCfg.PrecedenceOf(symbol))))
+            {
+                transitions.RemoveWhere(t => t.Action.Type != ParseActionType.Reduce);
+                if (transitions.Count > 1) throw new Exception("There is a reduce-reduce conflict.");
+                targetState = null;
+                return ParseAction.MakeReduce(transitions.First().Action.Production);
+            }
+
+            if (transitions.All(t => t.Action.Type == ParseActionType.Reduce))
+            {
+                if (transitions.Count > 1) throw new Exception("There is a reduce-reduce conflict.");
+                targetState = null;
+                return ParseAction.MakeReduce(transitions.First().Action.Production);
+            }
+
+            transitions.RemoveWhere(t => t.Action.Type != ParseActionType.Shift);
+
+            if (transitions.Count == 0)
+            {
+                targetState = null;
+                return ParseAction.MakeReject();
+            }
+
+            targetState = new ParserState(
+                mCfg,
+                transitions
+                    .Select(t => t.Dest ?? throw new NullReferenceException())
+                    .ToHashSet());
+            return ParseAction.MakeShift();
         }
 
         private HashSet<Item> Expand()

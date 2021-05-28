@@ -9,14 +9,37 @@ namespace Sacc
     public class CfgBuilder
     {
         private readonly Dictionary<Symbol, HashSet<ProductionRule>> mProductions = new();
+        private readonly Dictionary<Symbol, int> mPrecedence = new();
+        private int mNextPrecedenceLevel;
         private Symbol? mStartSymbol;
 
+
+        public CfgBuilder DeclarePrecedence(params Symbol[] symbols)
+        {
+            var val = mNextPrecedenceLevel++;
+            foreach (var symbol in symbols)
+            {
+                mPrecedence.Add(symbol, val);
+            }
+            return this;
+        }
+        
         public Cfg Build(Symbol? overrideStartSymbol = null)
         {
             // Do this before adding the extended start symbol
             // so that it does not appear in the "AllSymbols"
             // property of a cfg.
             var allSymbols = ListAllSymbols();
+
+            var associativity = new Dictionary<Symbol, Associativity>();
+
+            foreach (var symbol in allSymbols)
+            {
+                if (symbol.StaticType.GetCustomAttribute<AssociativityAttribute>() is { } assoc)
+                {
+                    associativity.Add(symbol, assoc.Associativity);
+                }
+            }
             
             var startSymbol = AddProductionForExtendedStartSymbol(overrideStartSymbol);
 
@@ -25,7 +48,9 @@ namespace Sacc
                 allSymbols,
                 FindFirsts(),
                 FindAllTerminals(),
-                startSymbol);
+                startSymbol,
+                mPrecedence,
+                associativity);
         }
 
         private Symbol AddProductionForExtendedStartSymbol(Symbol? overrideStartSymbol)

@@ -23,6 +23,8 @@ namespace Sacc
         /// </summary>
         public Symbol Follow { get; }
 
+        public bool CanReduce => DotPos >= Production.Ingredients.Length;
+
         public Item(ProductionRule production, int dotPos, Symbol follow)
         {
             Production = production;

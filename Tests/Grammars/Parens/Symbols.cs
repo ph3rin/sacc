@@ -3,7 +3,7 @@ using Sacc;
 
 namespace Tests.Grammars.Parens
 {
-    [SymbolName("'('")]
+    [SymbolName("'('"), Associativity(Associativity.Right)]
     public class SymLParen
     {
     }
